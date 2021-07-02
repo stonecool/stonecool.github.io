@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="报错 执行：  12-- 示例select y from z group by x;  报错：  ERROR 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column ‘x.y.z’ which is not functionally dependen">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql的ONLY_FULL_GROUP_BY模式">
+<meta property="og:url" content="http://yoursite.com/2020/07/03/ony-full-group-by/index.html">
+<meta property="og:site_name" content="STONE&#39;S LAB">
+<meta property="og:description" content="报错 执行：  12-- 示例select y from z group by x;  报错：  ERROR 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column ‘x.y.z’ which is not functionally dependen">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-11-13T01:30:32.282Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql的ONLY_FULL_GROUP_BY模式">
+<meta name="twitter:description" content="报错 执行：  12-- 示例select y from z group by x;  报错：  ERROR 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column ‘x.y.z’ which is not functionally dependen">
+
+<link rel="canonical" href="http://yoursite.com/2020/07/03/ony-full-group-by/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Mysql的ONLY_FULL_GROUP_BY模式 | STONE'S LAB</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">STONE'S LAB</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/03/ony-full-group-by/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="stonecool">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="STONE'S LAB">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mysql的ONLY_FULL_GROUP_BY模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-03 16:12:32" itemprop="dateCreated datePublished" datetime="2020-07-03T16:12:32+08:00">2020-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-13 09:30:32" itemprop="dateModified" datetime="2020-11-13T09:30:32+08:00">2020-11-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="报错"><a href="#报错" class="headerlink" title="报错"></a>报错</h4><ul>
+<li>执行：</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 示例</span></span><br><span class="line"><span class="keyword">select</span> y <span class="keyword">from</span> z <span class="keyword">group</span> <span class="keyword">by</span> x;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>报错：</p>
+<blockquote>
+<p>ERROR 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column ‘x.y.z’ which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by</p>
+</blockquote>
+</li>
+<li><p>粗略翻译：<br><code>SELECT</code>列表里的第一个表达式(注：示例中的”x”)不在<code>GROUP BY</code>列中，而且包含了非功能性依赖于<code>GROUP BY</code>列的<strong>非汇总列</strong>‘x.y.z’，对于<code>sql_mode=only_full_group_by</code>模式是不兼容的。</p>
+</li>
+<li><p>问题：   </p>
+<ul>
+<li><code>SELECT</code>列表里包含了未在<code>GROUP BY</code>语句中出现的列</li>
+<li><code>SELECT</code>列表包含了<strong>非汇总列</strong>，而非汇总列又不功能性依赖于<code>GROUP BY</code>中的列</li>
+<li>这两种情况与<code>sql_mode=only_full_group_by</code>不兼容</li>
+</ul>
+</li>
+</ul>
+<a id="more"></a>
+<h4 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h4><ul>
+<li>服务运行时修改</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 只修改当前session</span></span><br><span class="line"><span class="comment">-- 查看当前session的sql_mode</span></span><br><span class="line"><span class="keyword">select</span> @@session.sql_mode;</span><br><span class="line">+<span class="comment">--------------------+</span></span><br><span class="line">| @@session.sql_mode |</span><br><span class="line">+<span class="comment">--------------------+</span></span><br><span class="line">| ONLY_FULL_GROUP_BY |</span><br><span class="line">+<span class="comment">--------------------+</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 修改，将ONLY_FULL_GROUP_BY去掉</span></span><br><span class="line"><span class="keyword">set</span> @@session.sql_mode=<span class="string">''</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 修改全局</span></span><br><span class="line"><span class="keyword">select</span> @@global.sql_mode;</span><br><span class="line">+<span class="comment">--------------------+</span></span><br><span class="line">| @@global.sql_mode |</span><br><span class="line">+<span class="comment">--------------------+</span></span><br><span class="line">| ONLY_FULL_GROUP_BY |</span><br><span class="line">+<span class="comment">--------------------+</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 修改，将ONLY_FULL_GROUP_BY去掉</span></span><br><span class="line"><span class="keyword">set</span> @@global.sql_mode=<span class="string">''</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改my.cnf<ul>
+<li>修改my.cnf文件内的参数<code>sql_mode</code>，将<code>ONLY_FULL_GROUP_BY</code>字样去掉</li>
+<li>重启服务</li>
+</ul>
+</li>
+</ul>
+<h4 id="再看原因"><a href="#再看原因" class="headerlink" title="再看原因"></a>再看原因</h4><ul>
+<li><p>先看下官网对<code>ONLY_FULL_GROUP_BY</code>模式的介绍</p>
+<blockquote>
+<p>Reject queries for which the select list, HAVING condition, or ORDER BY list refer to nonaggregated columns that are neither named in the GROUP BY clause nor are functionally dependent on (uniquely determined by) GROUP BY columns.</p>
+</blockquote>
+</li>
+<li><p>粗略翻译：<br>拒绝请求，因为他们在select列表里，having条件里或者order by列里面引用非汇总的列，而这些非汇总列即不是在group by列中也不是功能性依赖于group by中的列。</p>
+</li>
+</ul>
+<p>若<code>ONLY_FULL_GROUP_BY</code>模式开启，那么在<code>SELECT</code> <code>HAVING</code> <code>ORDER BY</code>这些”引用”（或者叫”打印”，反正就是用到列的地方）必须是汇总列，而这些汇总列必须是依赖于<code>GROUP BY</code>列。也就是说：</p>
+<ul>
+<li><code>SELECT</code> <code>HAVING</code> <code>ORDER BY</code> 要么是<code>GROUP BY</code>列</li>
+<li><code>SELECT</code> <code>HAVING</code> <code>ORDER BY</code> 要么是基于<code>GROUP BY</code>列的汇总列</li>
+</ul>
+<p>那么什么是汇总列呢。就是一些汇总函数操作之后的列。那么都有哪些函数是汇总函数呢。</p>
+<blockquote>
+<p>An aggregate function performs a calculation on multiple values and returns a single value.</p>
+</blockquote>
+<p>基本上一些经常用到的与<code>GROUP BY</code>搭配的函数都是汇总函数，比如：<br><code>MIN()</code> <code>MAX()</code> <code>COUNT()</code> <code>SUM()</code></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通俗的讲，<code>GROUP BY</code>是对目标集进行分类。分类后，对每个具体分类取一个值代表这个分类，而这些操作都是基于整个这个分类的，比如求和、取平均值等。但如果对分类取的值与分类方式无关，比如一群人，先按性别分类之后，再打印年龄，这时候是不具有代表性的。此时若<code>ONLY_FULL_GROUP_BY</code>模式开启就会报错。若<code>ONLY_FULL_GROUP_BY</code>模式关闭，先按性别分类，再打印年龄，就会在分类中取一个返回。</p>
+<h4 id="Reference-amp-Thanks"><a href="#Reference-amp-Thanks" class="headerlink" title="Reference &amp; Thanks"></a>Reference &amp; Thanks</h4><ul>
+<li><a href="https://dev.mysql.com/doc/refman/5.7/en/sql-mode.html#sqlmode_only_full_group_by" target="_blank" rel="noopener">ONLY_FULL_GROUP_BY</a></li>
+<li><a href="https://www.mysqltutorial.org/mysql-aggregate-functions.aspx/" target="_blank" rel="noopener">MySQL Aggregate Functions</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/21/user-ini/" rel="prev" title=".user.ini文件">
+      <i class="fa fa-chevron-left"></i> .user.ini文件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/08/pdovsmysqli/" rel="next" title="【译】PDO和MySQLi的对比，你应该用哪个?">
+      【译】PDO和MySQLi的对比，你应该用哪个? <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#报错"><span class="nav-number">1.</span> <span class="nav-text">报错</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决"><span class="nav-number">2.</span> <span class="nav-text">解决</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#再看原因"><span class="nav-number">3.</span> <span class="nav-text">再看原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Reference-amp-Thanks"><span class="nav-number">5.</span> <span class="nav-text">Reference &amp; Thanks</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">stonecool</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stonecool" title="GitHub → https://github.com/stonecool" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/34523tgwerrq3" title="Weibo → https://weibo.com/34523tgwerrq3" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://coolshell.cn/" title="https://coolshell.cn/" rel="noopener" target="_blank">CoolShell</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://openresty.com/" title="http://openresty.com/" rel="noopener" target="_blank">OpenResty官网</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://smartisan.com/" title="https://smartisan.com/" rel="noopener" target="_blank">锤子科技官网</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://nanjinglizhi.cn/" title="http://nanjinglizhi.cn/" rel="noopener" target="_blank">南京李志官网</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">stonecool</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

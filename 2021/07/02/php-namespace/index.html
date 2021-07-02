@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="(具体定义和意义不再复述) 版本PHP 7.2.34 用法 namespace用于声明一个命名空间 1234567891011&amp;lt;?php# 声明一个命名空间：appnamespace app;# print: appecho __NAMESPACE__;# 声明一个命名空间：app\controllersnamespace app\controllers;# print: app\contr">
+<meta name="keywords" content="PHP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Namespaces in PHP">
+<meta property="og:url" content="http://yoursite.com/2021/07/02/php-namespace/index.html">
+<meta property="og:site_name" content="STONE&#39;S LAB">
+<meta property="og:description" content="(具体定义和意义不再复述) 版本PHP 7.2.34 用法 namespace用于声明一个命名空间 1234567891011&amp;lt;?php# 声明一个命名空间：appnamespace app;# print: appecho __NAMESPACE__;# 声明一个命名空间：app\controllersnamespace app\controllers;# print: app\contr">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-07-02T10:28:00.307Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Namespaces in PHP">
+<meta name="twitter:description" content="(具体定义和意义不再复述) 版本PHP 7.2.34 用法 namespace用于声明一个命名空间 1234567891011&amp;lt;?php# 声明一个命名空间：appnamespace app;# print: appecho __NAMESPACE__;# 声明一个命名空间：app\controllersnamespace app\controllers;# print: app\contr">
+
+<link rel="canonical" href="http://yoursite.com/2021/07/02/php-namespace/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Namespaces in PHP | STONE'S LAB</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">STONE'S LAB</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/02/php-namespace/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="stonecool">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="STONE'S LAB">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Namespaces in PHP
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-02 18:22:01 / 修改时间：18:28:00" itemprop="dateCreated datePublished" datetime="2021-07-02T18:22:01+08:00">2021-07-02</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>(具体定义和意义不再复述)</p>
+<h4 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h4><p><code>PHP 7.2.34</code></p>
+<h4 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h4><ol>
+<li><p><code>namespace</code>用于声明一个命名空间</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment"># 声明一个命名空间：app</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">app</span>;</span><br><span class="line"><span class="comment"># print: app</span></span><br><span class="line"><span class="keyword">echo</span> <span class="keyword">__NAMESPACE__</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 声明一个命名空间：app\controllers</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">app</span>\<span class="title">controllers</span>;</span><br><span class="line"><span class="comment"># print: app\controllers</span></span><br><span class="line"><span class="keyword">echo</span> <span class="keyword">__NAMESPACE__</span>;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>namespace</code>后路径被解析为”全局空间路径”，不能带前缀’\‘，有则报错</li>
+<li>不能以’\‘结尾，有则报错</li>
+<li><blockquote>
+<p>The Namespace name PHP, and compound names starting with this name (like PHP\Classes) are reserved for internal language use and should not be used in the userspace code.</p>
+</blockquote>
+</li>
+<li>如上例一个文件可以声明多个命名空间，但通常不建议这么做</li>
+<li>同一个命名空间可在多个文件中声明<a id="more"></a>
+</li>
+</ul>
+</li>
+<li><p><code>use ...(as ...);</code> 用于引入其他命名空间到当前命名空间</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">banana</span>;</span><br><span class="line"><span class="keyword">const</span> COLOR = <span class="string">'yellow'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 命名空间，大小写不敏感</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">APPLE</span>;</span><br><span class="line"><span class="keyword">const</span> COLOR = <span class="string">'red'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">aa</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用：use \banana; 也可以</span></span><br><span class="line"><span class="keyword">use</span> <span class="title">banana</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># print: yellow</span></span><br><span class="line"><span class="keyword">echo</span> banana\COLOR;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">apple</span> <span class="title">as</span> <span class="title">a</span>;</span><br><span class="line"><span class="comment"># print: red</span></span><br><span class="line"><span class="keyword">echo</span> a\COLOR;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>命名空间关键字大小写不敏感</li>
+<li><code>use</code>后路径被解析为”全局空间路径”，带不带前缀’\‘都可以，均不报错</li>
+<li>不能以’\‘结尾，有则报错</li>
+</ul>
+</li>
+</ol>
+<ol start="3">
+<li>对命名空间中对象的访问<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"> <span class="keyword">namespace</span> <span class="title">fruit</span>\<span class="title">banana</span>;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">const</span> COLOR = <span class="string">'yellow'</span>;</span><br><span class="line"> <span class="class"><span class="keyword">class</span> <span class="title">ClassName</span> </span>&#123;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">echo</span> <span class="keyword">__METHOD__</span>;</span><br><span class="line">&#125;</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">namespace</span> <span class="title">fruit</span>;</span><br><span class="line"></span><br><span class="line"> <span class="comment"># print: yellow</span></span><br><span class="line"> <span class="keyword">echo</span> banana\COLOR;</span><br><span class="line"> <span class="comment"># print: fruit\banana\ClassName::__construct</span></span><br><span class="line"> $n = <span class="keyword">new</span> banana\ClassName();</span><br><span class="line"> <span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><h5 id="“全局空间”的空间声明及其内的对象是否带前缀’-‘"><a href="#“全局空间”的空间声明及其内的对象是否带前缀’-‘" class="headerlink" title="“全局空间”的空间声明及其内的对象是否带前缀’\‘"></a>“全局空间”的空间声明及其内的对象是否带前缀’\‘</h5><p>声明命名空间和访问对象时表现有所不同<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 声明时不需要前缀'\'，有则报错：Uncaught Error: Undefined constant 'app'</span></span><br><span class="line"><span class="comment"># namespace \app;</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">app</span>;</span><br><span class="line"><span class="keyword">const</span> COLOR = <span class="string">'red'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># print: app</span></span><br><span class="line"><span class="keyword">echo</span> <span class="keyword">__NAMESPACE__</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">webapp</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 报错：Uncaught Error: Undefined constant 'webapp\app\COLOR'</span></span><br><span class="line"><span class="comment"># echo app\COLOR;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># print: red</span></span><br><span class="line"><span class="keyword">echo</span> \app\COLOR;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>namespace</code>声明命名空间不需要前缀’\‘，因为<code>namespace</code>后必须跟”全局空间路径”，那么前缀的’\‘也就没必要了(既然全为”全局空间路径”，则可以统一省略前缀’\‘，解析时再按照”全局解析”就可以了)   <ul>
+<li><code>namespace</code> 后路径若带前缀’\‘，则会报错</li>
+<li><code>use</code>后也必须跟”全局空间路径”，也按照”全局空间路径”来解析，但加不加前缀’\‘都可以</li>
+</ul>
+</li>
+<li>在访问对象时，若是相对于”全局空间路径”的对象，必须带’\‘，否则就是相对于当前命名空间的对象，例如上文的：<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">webapp</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问： webapp\app\COLOR</span></span><br><span class="line"><span class="keyword">echo</span> app\COLOR;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问：app\COLOR</span></span><br><span class="line"><span class="keyword">echo</span> \app\COLOR;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>声明命名空间时不需要前缀’\‘，而在实际对象访问时却要加上前缀’\‘。<code>namespace</code>处加上前缀会报错，<code>use</code>加上前缀却不报错。<br>此处不知道为什么要这么设计，个人感觉很没必要，太容易误导了。</p>
+<h3 id="关键字namespace的特殊用途"><a href="#关键字namespace的特殊用途" class="headerlink" title="关键字namespace的特殊用途"></a>关键字<code>namespace</code>的特殊用途</h3><p>当对象<code>namespace</code>前缀时，代表当前命名空间原始对象，而不包括后导入对象<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">fruit</span>\<span class="title">banana</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Banana</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">echo</span> <span class="keyword">__METHOD__</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">fruit</span>\<span class="title">apple</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Apple</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">echo</span> <span class="keyword">__METHOD__</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">fruit</span>\<span class="title">banana</span>\<span class="title">Banana</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># print: fruit\banana\Banana::__construct</span></span><br><span class="line">$b = <span class="keyword">new</span> Banana();</span><br><span class="line"><span class="comment"># 报错：Uncaught Error: Class 'fruit\apple\Banana' not found</span></span><br><span class="line"><span class="comment"># $b = new namespace\Banana();</span></span><br><span class="line"><span class="comment"># print: fruit\apple\Apple::__construct</span></span><br><span class="line">$b = <span class="keyword">new</span> Apple();</span><br><span class="line"><span class="comment"># print: fruit\apple\Apple::__construct</span></span><br><span class="line">$b = <span class="keyword">new</span> <span class="keyword">namespace</span>\<span class="title">Apple</span>();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p><code>Banana</code>为后导入对象，<code>new Banana()</code>可以成功，但<code>new namespace\Banana()</code>则会失败</p>
+<h3 id="define可跨命名空间声明常量"><a href="#define可跨命名空间声明常量" class="headerlink" title="define可跨命名空间声明常量"></a><code>define</code>可跨命名空间声明常量</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">app</span>;</span><br><span class="line">define(<span class="string">'app\sub\YEAR'</span>, <span class="number">2021</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">app</span>\<span class="title">sub</span>;</span><br><span class="line"><span class="comment"># print: 2021</span></span><br><span class="line"><span class="keyword">echo</span> YEAR;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="当前空间不存在时，不同对象表现方式不一样"><a href="#当前空间不存在时，不同对象表现方式不一样" class="headerlink" title="当前空间不存在时，不同对象表现方式不一样"></a>当前空间不存在时，不同对象表现方式不一样</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">	const NAME = 'Tom';</span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">ClassName</span> </span>&#123;</span><br><span class="line">		<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			<span class="keyword">echo</span> <span class="keyword">__METHOD__</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">app</span> &#123;</span><br><span class="line">  # <span class="title">print</span>: <span class="title">Tom</span></span><br><span class="line">	<span class="title">echo</span> <span class="title">NAME</span>;</span><br><span class="line">  <span class="comment"># 报错：Uncaught Error: Class 'app\ClassName' not found</span></span><br><span class="line">	$c = <span class="keyword">new</span> ClassName();</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>常量/函数：当前命名空间若没有，尝试向上级空间找，，若找到则调用；找到”全局空间”还没有，则报错</li>
+<li>类：当前命名空间若没有直接报错</li>
+</ul>
+<h3 id="Reference-amp-Thanks"><a href="#Reference-amp-Thanks" class="headerlink" title="Reference &amp; Thanks"></a>Reference &amp; Thanks</h3><ul>
+<li><a href="https://www.php.net/manual/en/language.namespaces.php" target="_blank" rel="noopener">Namespaces</a></li>
+<li><a href="https://stackoverflow.com/questions/13089437/php-namespaces-and-using-the-prefix-in-declaration" target="_blank" rel="noopener">PHP namespaces and using the \ prefix in declaration</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"># PHP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/25/conn-req/" rel="prev" title="ngx_http_limit_conn模块和ngx_http_limit_req模块">
+      <i class="fa fa-chevron-left"></i> ngx_http_limit_conn模块和ngx_http_limit_req模块
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/02/localhost/" rel="next" title="localhost vs 0.0.0.0 vs 127.0.0.1">
+      localhost vs 0.0.0.0 vs 127.0.0.1 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#版本"><span class="nav-number">1.</span> <span class="nav-text">版本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#用法"><span class="nav-number">2.</span> <span class="nav-text">用法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意事项"><span class="nav-number">3.</span> <span class="nav-text">注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#“全局空间”的空间声明及其内的对象是否带前缀’-‘"><span class="nav-number">3.1.</span> <span class="nav-text">“全局空间”的空间声明及其内的对象是否带前缀’\‘</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关键字namespace的特殊用途"><span class="nav-number"></span> <span class="nav-text">关键字namespace的特殊用途</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#define可跨命名空间声明常量"><span class="nav-number"></span> <span class="nav-text">define可跨命名空间声明常量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#当前空间不存在时，不同对象表现方式不一样"><span class="nav-number"></span> <span class="nav-text">当前空间不存在时，不同对象表现方式不一样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference-amp-Thanks"><span class="nav-number"></span> <span class="nav-text">Reference &amp; Thanks</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">stonecool</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stonecool" title="GitHub → https://github.com/stonecool" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/34523tgwerrq3" title="Weibo → https://weibo.com/34523tgwerrq3" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://coolshell.cn/" title="https://coolshell.cn/" rel="noopener" target="_blank">CoolShell</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://openresty.com/" title="http://openresty.com/" rel="noopener" target="_blank">OpenResty官网</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://smartisan.com/" title="https://smartisan.com/" rel="noopener" target="_blank">锤子科技官网</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://nanjinglizhi.cn/" title="http://nanjinglizhi.cn/" rel="noopener" target="_blank">南京李志官网</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">stonecool</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

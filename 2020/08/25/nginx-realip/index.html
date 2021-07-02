@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="场景如果客户端的HTTP请求是直连Nginx，则可以通过$remote_addr、 $remote_port获取客户端的真实IP、端口，以此进行限流、过滤等操作。但若Nginx放在CDN、SLB后面，CDN、SLB转发客户端的HTTP请求到Nginx，$remote_addr、 $remote_port返回的是CDB、SLB连接Nginx的IP、端口。 当请求经过CDN、SLB转发后，为了上游服务">
+<meta name="keywords" content="Nginx&#x2F;OpenResty">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ngx_http_real_ip 模块">
+<meta property="og:url" content="http://yoursite.com/2020/08/25/nginx-realip/index.html">
+<meta property="og:site_name" content="STONE&#39;S LAB">
+<meta property="og:description" content="场景如果客户端的HTTP请求是直连Nginx，则可以通过$remote_addr、 $remote_port获取客户端的真实IP、端口，以此进行限流、过滤等操作。但若Nginx放在CDN、SLB后面，CDN、SLB转发客户端的HTTP请求到Nginx，$remote_addr、 $remote_port返回的是CDB、SLB连接Nginx的IP、端口。 当请求经过CDN、SLB转发后，为了上游服务">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-08-25T10:12:40.397Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ngx_http_real_ip 模块">
+<meta name="twitter:description" content="场景如果客户端的HTTP请求是直连Nginx，则可以通过$remote_addr、 $remote_port获取客户端的真实IP、端口，以此进行限流、过滤等操作。但若Nginx放在CDN、SLB后面，CDN、SLB转发客户端的HTTP请求到Nginx，$remote_addr、 $remote_port返回的是CDB、SLB连接Nginx的IP、端口。 当请求经过CDN、SLB转发后，为了上游服务">
+
+<link rel="canonical" href="http://yoursite.com/2020/08/25/nginx-realip/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ngx_http_real_ip 模块 | STONE'S LAB</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">STONE'S LAB</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/25/nginx-realip/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="stonecool">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="STONE'S LAB">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ngx_http_real_ip 模块
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-08-25 12:12:22 / 修改时间：18:12:40" itemprop="dateCreated datePublished" datetime="2020-08-25T12:12:22+08:00">2020-08-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h4><p>如果客户端的HTTP请求是直连Nginx，则可以通过<code>$remote_addr</code>、 <code>$remote_port</code>获取客户端的真实IP、端口，以此进行限流、过滤等操作。但若Nginx放在CDN、SLB后面，CDN、SLB转发客户端的HTTP请求到Nginx，<code>$remote_addr</code>、 <code>$remote_port</code>返回的是CDB、SLB连接Nginx的IP、端口。</p>
+<p>当请求经过CDN、SLB转发后，为了上游服务器能获取到用户的真实IP和端口，业界的标准是在转发HTTP请求时，添加指定的头部字段用于保存客户的真实IP和端口，通常是<code>X-Real-IP</code>或者<code>X-Forwarded-For</code>。比如当使用阿里云的CDN时，<code>X-Forwarded-For</code>字段就存储客户端的真实IP、端口。</p>
+<p>为此Nginx提供了HTTP Real IP模块，在Nginx的<code>POST_READ</code>阶段，将<code>$remote_addr</code>、 <code>$remote_port</code>替换为HTTP请求头中指定字段内的IP、端口，进而后续再进行限流、过滤等操作<br><a id="more"></a></p>
+<h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><p>http_real_ip模块默认未编译进Nginx，需在编译时手动添加参数<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--with-http_realip_module</span><br></pre></td></tr></table></figure></p>
+<h4 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h4><h5 id="1-set-real-ip-from"><a href="#1-set-real-ip-from" class="headerlink" title="1. set_real_ip_from"></a>1. set_real_ip_from</h5><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:	 set_real_ip_from address | CIDR | unix:;</span><br><span class="line">Default: —</span><br><span class="line">Context: http, server, location</span><br></pre></td></tr></table></figure>
+<p>用于指定可信地址，只有从可信地址发过来的请求才会进行<code>$remote_addr</code>、 <code>$remote_port</code>的替换。可以是单个地址，可以是CIDR，若是<code>unix:</code>,则所有的UNIX套接字都被认为是可信的。</p>
+<p>此条指令可以重复出现，比如有两个可信地址则可以配置成：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">set_real_ip_from</span> <span class="number">1.1.1.1</span>;</span><br><span class="line"><span class="attribute">set_real_ip_from</span> <span class="number">8.8.8.8</span>;</span><br></pre></td></tr></table></figure></p>
+<h4 id="2-real-ip-head"><a href="#2-real-ip-head" class="headerlink" title="2. real_ip_head"></a>2. real_ip_head</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  real_ip_header field | X-Real-IP | X-Forwarded-For | proxy_protocol;</span><br><span class="line">Default: real_ip_header X-Real-IP;</span><br><span class="line">Context: http, server, location</span><br></pre></td></tr></table></figure>
+<p>指定转发HTTP请求时存储客户端真实IP、端口的字段，http_realip_module将<code>$remote_addr</code>、 <code>$remote_port</code>替换为此字段中的IP、端口。</p>
+<h5 id="X-Real-IP-vs-X-Forwarded-For"><a href="#X-Real-IP-vs-X-Forwarded-For" class="headerlink" title="X-Real-IP vs X-Forwarded-For"></a>X-Real-IP vs X-Forwarded-For</h5><ul>
+<li><code>X-Real-IP(默认)</code>只存储一组IP、端口，直接取这组值替换<code>$remote_addr</code>、 <code>$remote_port</code>。</li>
+<li><code>X-Forwarded-For</code>会存储多组IP、端口，之间用<code>,</code>隔开，比如：<code>1.1.1.1,8.8.8.8</code>。比如请求先通过CDN，后又有SLB，则每经过一次转发<code>X-Forwarded-For</code>就会在后面追加一个地址。在替换时会取最后一个，在上例子即是<code>8.8.8.8</code>替换<code>$remote_addr</code>、 <code>$remote_port</code>。</li>
+</ul>
+<h4 id="3-real-ip-recursive"><a href="#3-real-ip-recursive" class="headerlink" title="3. real_ip_recursive"></a>3. real_ip_recursive</h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Syntax:  real_ip_recursive on | off;</span><br><span class="line">Default: real_ip_recursive off;</span><br><span class="line">Context: http, server, location</span><br><span class="line"><span class="attribute">This</span> directive appeared in versions <span class="number">1</span>.<span class="number">3</span>.<span class="number">0</span> and <span class="number">1</span>.<span class="number">2</span>.<span class="number">1</span>.</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>If recursive search is disabled, the original client address that matches one of the trusted addresses is replaced by the last address sent in the request header field defined by the real_ip_header directive. If recursive search is enabled, the original client address that matches one of the trusted addresses is replaced by the last non-trusted address sent in the request header field.</p>
+</blockquote>
+<p>递归搜索默认是关闭的，用<code>real_ip_head</code>指令指定的字段（<code>X-Forwarded-For</code>、<code>X-Real-IP</code>）内的最后一个地址替换原始的地址。若递归搜索开启，则用最后一个非可信地址的地址替换原始地址。</p>
+<h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><ul>
+<li><code>$realip_remote_addr</code>保存原始客户端地址（被替换前的）</li>
+<li><code>$realip_remote_port</code>保存原始的客户端端口</li>
+</ul>
+<h4 id="注"><a href="#注" class="headerlink" title="注"></a>注</h4><p>Nginx官方文档<a href="http://nginx.org/en/docs/http/ngx_http_realip_module.html" target="_blank" rel="noopener">Module ngx_http_realip_module</a>中提到上面的<code>set_real_ip_from</code>、<code>real_ip_header</code>、<code>real_ip_recursive</code>可放在<code>http</code>、<code>server</code>、<code>location</code>上下文中，这是不对的。<br>http_real_ip模块起作用是在<code>POST_READ</code>阶段，是在<code>FIND_CONFIG</code>之前，而<code>FIND_CONFIG</code>阶段对应找到相应的<code>location</code>，则放在<code>location</code>内则是不生效的。</p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
+<li><a href="http://nginx.org/en/docs/http/ngx_http_realip_module.html" target="_blank" rel="noopener">Module ngx_http_realip_module</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Nginx-OpenResty/" rel="tag"># Nginx/OpenResty</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/08/pdovsmysqli/" rel="prev" title="【译】PDO和MySQLi的对比，你应该用哪个?">
+      <i class="fa fa-chevron-left"></i> 【译】PDO和MySQLi的对比，你应该用哪个?
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/25/conn-req/" rel="next" title="ngx_http_limit_conn模块和ngx_http_limit_req模块">
+      ngx_http_limit_conn模块和ngx_http_limit_req模块 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装"><span class="nav-number">2.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常用指令"><span class="nav-number">3.</span> <span class="nav-text">常用指令</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-set-real-ip-from"><span class="nav-number">3.1.</span> <span class="nav-text">1. set_real_ip_from</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-real-ip-head"><span class="nav-number">4.</span> <span class="nav-text">2. real_ip_head</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#X-Real-IP-vs-X-Forwarded-For"><span class="nav-number">4.1.</span> <span class="nav-text">X-Real-IP vs X-Forwarded-For</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-real-ip-recursive"><span class="nav-number">5.</span> <span class="nav-text">3. real_ip_recursive</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他"><span class="nav-number">6.</span> <span class="nav-text">其他</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注"><span class="nav-number">7.</span> <span class="nav-text">注</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">stonecool</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stonecool" title="GitHub → https://github.com/stonecool" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/34523tgwerrq3" title="Weibo → https://weibo.com/34523tgwerrq3" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://coolshell.cn/" title="https://coolshell.cn/" rel="noopener" target="_blank">CoolShell</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://openresty.com/" title="http://openresty.com/" rel="noopener" target="_blank">OpenResty官网</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://smartisan.com/" title="https://smartisan.com/" rel="noopener" target="_blank">锤子科技官网</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://nanjinglizhi.cn/" title="http://nanjinglizhi.cn/" rel="noopener" target="_blank">南京李志官网</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">stonecool</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="原文 PDO vs. MySQLi: Which Should You Use?  译文当通过PHP访问一个数据库时，我们有两个选择MySQLi和PDO。那么在做出选择之前，有哪些知识你应该了解呢。本文将概述差异、支持的数据库、稳定性和性能问题等方面。 如果你经常在PHP中操作数据库，你可能想看看在Envato Market上有哪些同时支持MySQLi和PDO的可用脚本和APP。">
+<meta name="keywords" content="PHP,译">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【译】PDO和MySQLi的对比，你应该用哪个?">
+<meta property="og:url" content="http://yoursite.com/2020/07/08/pdovsmysqli/index.html">
+<meta property="og:site_name" content="STONE&#39;S LAB">
+<meta property="og:description" content="原文 PDO vs. MySQLi: Which Should You Use?  译文当通过PHP访问一个数据库时，我们有两个选择MySQLi和PDO。那么在做出选择之前，有哪些知识你应该了解呢。本文将概述差异、支持的数据库、稳定性和性能问题等方面。 如果你经常在PHP中操作数据库，你可能想看看在Envato Market上有哪些同时支持MySQLi和PDO的可用脚本和APP。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/07/08/pdovsmysqli/Database_Support.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/08/pdovsmysqli/Security.png">
+<meta property="og:updated_time" content="2020-07-11T03:13:05.071Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【译】PDO和MySQLi的对比，你应该用哪个?">
+<meta name="twitter:description" content="原文 PDO vs. MySQLi: Which Should You Use?  译文当通过PHP访问一个数据库时，我们有两个选择MySQLi和PDO。那么在做出选择之前，有哪些知识你应该了解呢。本文将概述差异、支持的数据库、稳定性和性能问题等方面。 如果你经常在PHP中操作数据库，你可能想看看在Envato Market上有哪些同时支持MySQLi和PDO的可用脚本和APP。">
+<meta name="twitter:image" content="http://yoursite.com/2020/07/08/pdovsmysqli/Database_Support.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/07/08/pdovsmysqli/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>【译】PDO和MySQLi的对比，你应该用哪个? | STONE'S LAB</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">STONE'S LAB</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/08/pdovsmysqli/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="stonecool">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="STONE'S LAB">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【译】PDO和MySQLi的对比，你应该用哪个?
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-08 14:07:57" itemprop="dateCreated datePublished" datetime="2020-07-08T14:07:57+08:00">2020-07-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-11 11:13:05" itemprop="dateModified" datetime="2020-07-11T11:13:05+08:00">2020-07-11</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="原文"><a href="#原文" class="headerlink" title="原文"></a>原文</h3><ul>
+<li><a href="https://code.tutsplus.com/tutorials/pdo-vs-mysqli-which-should-you-use--net-24059" target="_blank" rel="noopener">PDO vs. MySQLi: Which Should You Use?</a></li>
+</ul>
+<h3 id="译文"><a href="#译文" class="headerlink" title="译文"></a>译文</h3><p>当通过PHP访问一个数据库时，我们有两个选择MySQLi和PDO。那么在做出选择之前，有哪些知识你应该了解呢。本文将概述差异、支持的数据库、稳定性和性能问题等方面。</p>
+<p>如果你经常在PHP中操作数据库，你可能想看看在Envato Market上有哪些同时支持MySQLi和PDO的可用脚本和APP。</p>
+<a id="more"></a>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left">PDO</th>
+<th style="text-align:left">MySQLi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">数据库支持</td>
+<td style="text-align:left">12种不同驱动</td>
+<td style="text-align:left">只支持MySQL</td>
+</tr>
+<tr>
+<td style="text-align:left">API</td>
+<td style="text-align:left">面向对象</td>
+<td style="text-align:left">面向对象、面向过程</td>
+</tr>
+<tr>
+<td style="text-align:left">连接方式</td>
+<td style="text-align:left">容易</td>
+<td style="text-align:left">容易</td>
+</tr>
+<tr>
+<td style="text-align:left">命名参数</td>
+<td style="text-align:left">支持</td>
+<td style="text-align:left">不支持</td>
+</tr>
+<tr>
+<td style="text-align:left">对象映射</td>
+<td style="text-align:left">支持</td>
+<td style="text-align:left">支持</td>
+</tr>
+<tr>
+<td style="text-align:left">预编译语句（客户端）</td>
+<td style="text-align:left">支持</td>
+<td style="text-align:left">不支持</td>
+</tr>
+<tr>
+<td style="text-align:left">性能</td>
+<td style="text-align:left">快</td>
+<td style="text-align:left">快</td>
+</tr>
+<tr>
+<td style="text-align:left">存储过程</td>
+<td style="text-align:left">支持</td>
+<td style="text-align:left">支持</td>
+</tr>
+</tbody>
+</table>
+<h4 id="连接方式"><a href="#连接方式" class="headerlink" title="连接方式"></a>连接方式</h4><p>二者连接数据库都比较容易：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PDO</span></span><br><span class="line">$pdo = <span class="keyword">new</span> PDO(<span class="string">"mysql:host=localhost;dbname=database"</span>, <span class="string">'username'</span>, <span class="string">'password'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// mysqli，面向过程方式</span></span><br><span class="line">$mysqli = mysqli_connect(<span class="string">'localhost'</span>, <span class="string">'username'</span>, <span class="string">'password'</span>, <span class="string">'database'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// mysqli，面向对象方式</span></span><br><span class="line">$mysqli = <span class="keyword">new</span> mysqli(<span class="string">'localhost'</span>, <span class="string">'username'</span>, <span class="string">'password'</span>, <span class="string">'database'</span>);</span><br></pre></td></tr></table></figure></p>
+<p>请注意，在本教程的余下部分，这些连接和资源将被视为已存在。</p>
+<h4 id="API支持"><a href="#API支持" class="headerlink" title="API支持"></a>API支持</h4><p>PDO和MySQLi都提供了面向对象API，但MySQLi也提供了对于新手更容易理解的面向过程API。如果你对原生的PHP MySQL驱动比较熟悉，你会发现迁移到MySQLi的面向过程接口更容易。相反的，一旦你掌握了PDO，你可以通过它访问任何你想访问的数据库（译者注：必须是PDO支持的）。</p>
+<h4 id="数据库支持"><a href="#数据库支持" class="headerlink" title="数据库支持"></a>数据库支持</h4><p><img src="/2020/07/08/pdovsmysqli/Database_Support.png" alt="Database Support"><br>PDO相比于MySQLi的主要优势是它对数据库驱动的支持。截止当前时间（译者注：原文发布于2012年2月），PDO支持12种不同的驱动。相反的，MySQLi只<br>支持MySQL。</p>
+<p>打印当前PDO支持的驱动列表，代码如下：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var_dump(PDO::getAvailableDrivers());</span><br></pre></td></tr></table></figure></p>
+<p>这意味，一旦你的项目需要切换到另一个数据库驱动，PDO使这个过程完全透明。你需要做的只是修改连接标示和少量新数据库不支持的查询语句。如果是MySQLi，<br>你需要重写所有包含查询语句的代码块。</p>
+<h4 id="命名参数"><a href="#命名参数" class="headerlink" title="命名参数"></a>命名参数</h4><p>这是PDO另一个重要的特点，参数绑定相比于顺序绑定<strong>更加容易的</strong>。<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$params = <span class="keyword">array</span>(<span class="string">':username'</span> =&gt; <span class="string">'test'</span>, <span class="string">':email'</span> =&gt; $mail, <span class="string">'last_login'</span> =&gt; time() - <span class="number">3600</span>);</span><br><span class="line"></span><br><span class="line">$pdo-&gt;prepare(<span class="string">'</span></span><br><span class="line"><span class="string">  SELECT * FROM users</span></span><br><span class="line"><span class="string">  WHERE username = :username</span></span><br><span class="line"><span class="string">  AND email = :email</span></span><br><span class="line"><span class="string">  AND last_login &gt; :last_login'</span>);</span><br><span class="line"></span><br><span class="line">$pdo-&gt;execute($params);</span><br></pre></td></tr></table></figure></p>
+<p>相反的，如果通过MySQLi的方式：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$query = $mysqli-&gt;prepare(<span class="string">'</span></span><br><span class="line"><span class="string">  SELECT * FROM users</span></span><br><span class="line"><span class="string">  WHERE username = ?</span></span><br><span class="line"><span class="string">  AND email = ?</span></span><br><span class="line"><span class="string">  AND last_login &gt; ?'</span>);</span><br><span class="line"></span><br><span class="line">$query = bind_param(<span class="string">'sss'</span>, <span class="string">'test'</span>, $mail, time() - <span class="number">3600</span>);</span><br><span class="line">$query-&gt;execute();</span><br></pre></td></tr></table></figure></p>
+<p>问号参数绑定可能看起来更短，但是它却不像命名参数那么灵活。因为事实上开发者必须一直记得参数的顺序，在某些场景下会很奇怪。</p>
+<p>可惜，<strong>MySQLi不支持命名参数</strong>.</p>
+<h4 id="对象映射"><a href="#对象映射" class="headerlink" title="对象映射"></a>对象映射</h4><p>PDO和MySQLi都可以将结果映射到对象。如果想使用类ORM特性，但又不想定制一个数据库虚拟层，对象映射就很方便。让我们假设有一个<code>User</code>类，它<br>的很多属性和数据库的字段名相匹配。<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">  <span class="keyword">public</span> $id;</span><br><span class="line">  <span class="keyword">public</span> $first_name;</span><br><span class="line">  <span class="keyword">public</span> $last_name;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">info</span><span class="params">()</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'#'</span>.<span class="keyword">$this</span>-&gt;id.<span class="string">': '</span>.<span class="keyword">$this</span>-&gt;first_name.<span class="string">' '</span>.<span class="keyword">$this</span>-&gt;last_name;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果没有对象映射，在正确调用<code>info()</code>方法之前，我们需要赋值每个字段（手动或通过构造函数）。</p>
+<p>对象映射允许我们预定义许多属性，即使对象还没有被构造。例如：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">$query = <span class="string">"SELECT id, first_name, last_name FROM users"</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// PDO</span></span><br><span class="line">$result = $pdo-&gt;query($query);</span><br><span class="line">$result-&gt;setFetchMode(PDO::FETCH_CLASS, <span class="string">'User'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> ($user = $result-&gt;fetch()) &#123;</span><br><span class="line">  <span class="keyword">echo</span> $user-&gt;info().<span class="string">"\n"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// MySQLi, 面向过程方式</span></span><br><span class="line"><span class="keyword">if</span> ($result = mysqli_query($mysqli, $query)) &#123;</span><br><span class="line">  <span class="keyword">while</span> ($user = mysqli_fetch_object($result, <span class="string">'User'</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> $user-&gt;info(). \n;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MySQLi, 面向对象方式</span></span><br><span class="line"><span class="keyword">if</span> ($result = $mysqli-&gt;query($query)) &#123;</span><br><span class="line">  <span class="keyword">while</span> ($user = $result-&gt;fetch_object(<span class="string">'User'</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> $user-&gt;info().<span class="string">"\n"</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h4><p><img src="/2020/07/08/pdovsmysqli/Security.png" alt="Security"></p>
+<blockquote>
+<p>两个库都提供了<strong>SQL注入安全</strong>，只要开发者按照他们提供的方式使用（注：转义/通编译语句的参数绑定）</p>
+</blockquote>
+<p>我们假设一个黑客尝试注通过’username’HTTP查询参数(GET)注入一些恶意代码：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$_GET[<span class="string">'username'</span>] = <span class="string">"';DELETE FROM users;/*"</span></span><br></pre></td></tr></table></figure></p>
+<p>如果我们没有转义，它将照”原样”–删除users表的所有行，被包裹进查询语句（PDO和MySQLi都支持多语句查询）。<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PDO, "手动"转义</span></span><br><span class="line">$username = PDO::quote($_GET[<span class="string">'username'</span>]);</span><br><span class="line">$pdo-&gt;query(<span class="string">"SELECT * FROM users WHERE username = $username"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// mysqli, "手动"转义</span></span><br><span class="line">$username = mysqli_real_escape_string($_GET[<span class="string">'username'</span>]);</span><br><span class="line">$mysqli-&gt;query(<span class="string">"SELECT * FROM users WHRER username = '$username'"</span>);</span><br></pre></td></tr></table></figure></p>
+<p>如你所见，<code>PDO::quote()</code>不仅转义了字符串，还将他们用引号扩起来。相反的，<code>mysqli_read_escape_string()</code>只是转义了字符串，需要你手动添加括号.<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PDO, 预处理语句</span></span><br><span class="line">$pdo-&gt;prepare(<span class="string">'SELECT * FROM users WHERE username = :username'</span>);</span><br><span class="line">$pdo-&gt;execute(<span class="keyword">array</span>(<span class="string">':username'</span> =&gt; $_GET[<span class="string">'username'</span>]));</span><br><span class="line"></span><br><span class="line"><span class="comment">// MySQLi, 预处理语句</span></span><br><span class="line">$query = $mysqli-&gt;prepare(<span class="string">'SELECT * FROM users WHERE username = ?'</span>);</span><br><span class="line">$query-&gt;bind_param(<span class="string">'s'</span>, $_GET[<span class="string">'username'</span>]);</span><br><span class="line">$query-&gt;execute();</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>我推荐你始终对绑定查询使用预处理语句而不是<code>PDO::quote()</code>和<code>mysqli_real_escape_string()</code></p>
+</blockquote>
+<h4 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h4><p>虽然PDO和MySQLi都比较快，但MySQLi在基准测试中表现稍微更快一点，非预处理语句约为2.5%，预处理语句约为6.5%。然而原生的MySQL扩展库比二者都更快。<br>所以如果你真的需要榨取最后一点性能，原生的MySQL扩展库可能是你要考虑的。</p>
+<h4 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h4><p>最终，PDO最终赢得了这场战斗的胜利。基于对12种不同的数据库驱动（18种不同的数据库）的支持和命名参数，我们可以忽略一点点性能的损失，继而习惯于他的API。<br>从安全的角度考虑，只要开发者通过它们提供的方式来操作（注：预处理语句）它们都是安全的。</p>
+<blockquote>
+<p>所以，如果你的还在使用MySQLi，是时间更做出改变了。</p>
+</blockquote>
+<p><strong>译者注：译文到此已全部结束</strong></p>
+<h3 id="译者声明"><a href="#译者声明" class="headerlink" title="译者声明"></a>译者声明</h3><ol>
+<li>感谢原作者<a href="https://tutsplus.com/authors/dejan-marjanovic" target="_blank" rel="noopener">Dejan Marjanovic</a>，侵权必删</li>
+<li>原文留言部分有很精彩的讨论，也值得学习</li>
+<li>文章时间有点久，可能部分观点现在看有点过时，翻译只为提高语言能力</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"># PHP</a>
+              <a href="/tags/译/" rel="tag"># 译</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/03/ony-full-group-by/" rel="prev" title="Mysql的ONLY_FULL_GROUP_BY模式">
+      <i class="fa fa-chevron-left"></i> Mysql的ONLY_FULL_GROUP_BY模式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/25/nginx-realip/" rel="next" title="ngx_http_real_ip 模块">
+      ngx_http_real_ip 模块 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#原文"><span class="nav-number">1.</span> <span class="nav-text">原文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#译文"><span class="nav-number">2.</span> <span class="nav-text">译文</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">2.1.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#连接方式"><span class="nav-number">2.2.</span> <span class="nav-text">连接方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#API支持"><span class="nav-number">2.3.</span> <span class="nav-text">API支持</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库支持"><span class="nav-number">2.4.</span> <span class="nav-text">数据库支持</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#命名参数"><span class="nav-number">2.5.</span> <span class="nav-text">命名参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对象映射"><span class="nav-number">2.6.</span> <span class="nav-text">对象映射</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全"><span class="nav-number">2.7.</span> <span class="nav-text">安全</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#性能"><span class="nav-number">2.8.</span> <span class="nav-text">性能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结-1"><span class="nav-number">2.9.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#译者声明"><span class="nav-number">3.</span> <span class="nav-text">译者声明</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">stonecool</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stonecool" title="GitHub → https://github.com/stonecool" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/34523tgwerrq3" title="Weibo → https://weibo.com/34523tgwerrq3" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://coolshell.cn/" title="https://coolshell.cn/" rel="noopener" target="_blank">CoolShell</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://openresty.com/" title="http://openresty.com/" rel="noopener" target="_blank">OpenResty官网</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://smartisan.com/" title="https://smartisan.com/" rel="noopener" target="_blank">锤子科技官网</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://nanjinglizhi.cn/" title="http://nanjinglizhi.cn/" rel="noopener" target="_blank">南京李志官网</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">stonecool</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
