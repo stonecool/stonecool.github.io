@@ -25,10 +25,10 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="localhost vs 0.0.0.0 vs 127.0.0.1">
 <meta property="og:url" content="http://yoursite.com/2021/07/02/localhost/index.html">
-<meta property="og:site_name" content="STONE&#39;S LAB">
+<meta property="og:site_name" content="Stone&#39;s Lab">
 <meta property="og:description" content="注：本文只讨论进程监听时三个地址的区别。 通俗地讲 127.0.0.1代表本机地址。比如，一个进程监听了127.0.0.1:8080，只有本机的其他进程才可以访问，外网或局域网的进程无法访问。  localhost指向127.0.0.1，可以理解为是127.0.0.1的别名，定义在/etc/hosts(OS: *nixes)文件中。  0.0.0.0代表本机器的所有地址，不仅包括：127.0.0.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2021-07-02T10:28:13.853Z">
+<meta property="og:updated_time" content="2021-07-07T09:54:57.413Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="localhost vs 0.0.0.0 vs 127.0.0.1">
 <meta name="twitter:description" content="注：本文只讨论进程监听时三个地址的区别。 通俗地讲 127.0.0.1代表本机地址。比如，一个进程监听了127.0.0.1:8080，只有本机的其他进程才可以访问，外网或局域网的进程无法访问。  localhost指向127.0.0.1，可以理解为是127.0.0.1的别名，定义在/etc/hosts(OS: *nixes)文件中。  0.0.0.0代表本机器的所有地址，不仅包括：127.0.0.">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>localhost vs 0.0.0.0 vs 127.0.0.1 | STONE'S LAB</title>
+  <title>localhost vs 0.0.0.0 vs 127.0.0.1 | Stone's Lab</title>
   
 
 
@@ -97,7 +97,7 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">STONE'S LAB</h1>
+      <h1 class="site-title">Stone's Lab</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
@@ -170,7 +170,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="STONE'S LAB">
+      <meta itemprop="name" content="Stone's Lab">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -183,10 +183,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-07-02 18:22:44 / 修改时间：18:28:13" itemprop="dateCreated datePublished" datetime="2021-07-02T18:22:44+08:00">2021-07-02</time>
+              <time title="创建时间：2021-07-02 18:22:44" itemprop="dateCreated datePublished" datetime="2021-07-02T18:22:44+08:00">2021-07-02</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-07-07 17:54:57" itemprop="dateModified" datetime="2021-07-07T17:54:57+08:00">2021-07-07</time>
+              </span>
 
           
 
@@ -220,7 +226,7 @@
 <p>IP_address canonical_hostname [aliases…]</p>
 </blockquote>
 <p>本机<code>/etc/hosts</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">##</span><br><span class="line"># Host Database</span><br><span class="line">#</span><br><span class="line"># localhost is used to configure the loopback interface</span><br><span class="line"># when the system is booting.  Do not change this entry.</span><br><span class="line">##</span><br><span class="line">127.0.0.1	localhost</span><br><span class="line">255.255.255.255	broadcasthost</span><br><span class="line">::1             localhost</span><br></pre></td></tr></table></figure></p>
-<h4 id="BTW"><a href="#BTW" class="headerlink" title="BTW"></a>BTW</h4><p><code>mysql -uroot -hlocalhost</code>通常会报错<code>ERROR 2002 (HY000): Can&#39;t connect to local MySQL server through socket &#39;/tmp/mysql.sock&#39; (2)</code>.<br>但是<code>mysql -uroot -h127.0.01</code>却可以成功连上数据库，但是上文说<code>localhost</code>是<code>127.0.0.1</code>的别名，为什么此处又不同呢？</p>
+<h4 id="BTW"><a href="#BTW" class="headerlink" title="BTW"></a>BTW</h4><p><code>mysql -uroot -hlocalhost</code>通常会报错<code>ERROR 2002 (HY000): Can&#39;t connect to local MySQL server through socket &#39;/tmp/mysql.sock&#39; (2)</code>.<br>但是<code>mysql -uroot -h127.0.0.1</code>却可以成功连上数据库，但是上文说<code>localhost</code>是<code>127.0.0.1</code>的别名，为什么此处又不同呢？</p>
 <p>查阅mysql官网，找到如下内容：</p>
 <blockquote>
 <p>On Unix, MySQL Shell connections default to using Unix sockets when the following conditions are met:</p>
@@ -230,7 +236,7 @@
 <li>The –socket or -S option is specified, with or without a path to a socket file.</li>
 </ul>
 </blockquote>
-<p>这是mysql的特殊约定。</p>
+<p>原来这是mysql的特殊约定，主机名为<code>localhost</code>会连接本地的Unix sockets</p>
 <h3 id="Reference-amp-Thanks"><a href="#Reference-amp-Thanks" class="headerlink" title="Reference &amp; Thanks"></a>Reference &amp; Thanks</h3><ul>
 <li><a href="https://stackoverflow.com/questions/20778771/what-is-the-difference-between-0-0-0-0-127-0-0-1-and-localhost" target="_blank" rel="noopener">What is the difference between 0.0.0.0, 127.0.0.1 and localhost?</a></li>
 <li><a href="https://man7.org/linux/man-pages/man5/hosts.5.html" target="_blank" rel="noopener">hosts(5) — Linux manual page</a></li>
@@ -361,13 +367,13 @@
           <a href="https://coolshell.cn/" title="https://coolshell.cn/" rel="noopener" target="_blank">CoolShell</a>
         </li>
         <li class="links-of-blogroll-item">
-          <a href="http://openresty.com/" title="http://openresty.com/" rel="noopener" target="_blank">OpenResty官网</a>
+          <a href="http://openresty.com/" title="http://openresty.com/" rel="noopener" target="_blank">OpenResty</a>
         </li>
         <li class="links-of-blogroll-item">
-          <a href="https://smartisan.com/" title="https://smartisan.com/" rel="noopener" target="_blank">锤子科技官网</a>
+          <a href="https://smartisan.com/" title="https://smartisan.com/" rel="noopener" target="_blank">Smartisan</a>
         </li>
         <li class="links-of-blogroll-item">
-          <a href="http://nanjinglizhi.cn/" title="http://nanjinglizhi.cn/" rel="noopener" target="_blank">南京李志官网</a>
+          <a href="http://nanjinglizhi.cn/" title="http://nanjinglizhi.cn/" rel="noopener" target="_blank">NanJingLizhi</a>
         </li>
     </ul>
   </div>
