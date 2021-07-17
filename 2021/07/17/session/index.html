@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言由于http请求无状态的特性，Cookie和Session是用来确定用户身份最基本的方式。大致的步骤是：浏览器第一次请求服务器，服务器会生成一个Session（Session有很多种存储方式。拿最普通的文件存储来举例，生成的Session保存为本地文件，文件名是”前缀_SessionId”），服务器将SessionId返回给浏览器，浏览器将SessionId存在Cookie中，浏览器以后请求该">
+<meta name="keywords" content="PHP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP的Session锁">
+<meta property="og:url" content="http://yoursite.com/2021/07/17/session/index.html">
+<meta property="og:site_name" content="Stone&#39;s Lab">
+<meta property="og:description" content="前言由于http请求无状态的特性，Cookie和Session是用来确定用户身份最基本的方式。大致的步骤是：浏览器第一次请求服务器，服务器会生成一个Session（Session有很多种存储方式。拿最普通的文件存储来举例，生成的Session保存为本地文件，文件名是”前缀_SessionId”），服务器将SessionId返回给浏览器，浏览器将SessionId存在Cookie中，浏览器以后请求该">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-07-17T04:35:26.099Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP的Session锁">
+<meta name="twitter:description" content="前言由于http请求无状态的特性，Cookie和Session是用来确定用户身份最基本的方式。大致的步骤是：浏览器第一次请求服务器，服务器会生成一个Session（Session有很多种存储方式。拿最普通的文件存储来举例，生成的Session保存为本地文件，文件名是”前缀_SessionId”），服务器将SessionId返回给浏览器，浏览器将SessionId存在Cookie中，浏览器以后请求该">
+
+<link rel="canonical" href="http://yoursite.com/2021/07/17/session/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>PHP的Session锁 | Stone's Lab</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Stone's Lab</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/17/session/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="stonecool">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Stone's Lab">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PHP的Session锁
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-17 12:32:29 / 修改时间：12:35:26" itemprop="dateCreated datePublished" datetime="2021-07-17T12:32:29+08:00">2021-07-17</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>由于http请求无状态的特性，Cookie和Session是用来确定用户身份最基本的方式。大致的步骤是：浏览器第一次请求服务器，服务器会生成一个Session（Session有很多种存储方式。拿最普通的文件存储来举例，生成的Session保存为本地文件，文件名是”前缀_SessionId”），服务器将SessionId返回给浏览器，浏览器将SessionId存在Cookie中，浏览器以后请求该服务器都会带上这个SessionId，服务器根据这个SessionId找到之前的Session，就可以确定这次请求的身份。</p>
+<p>一般情况服务器会将用户身份信息存储在Session中，这样通过确定Session就可以确定用户身份。常见的还会存储一些全局的信息在Session中这样就避免重复读取DB，空间换时间。</p>
+<p>模拟下通常的请求：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment"># index.php</span></span><br><span class="line">session_start();</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进行一些读写session的操作</span></span><br><span class="line">$_SESSION[<span class="string">'time'</span>] = time();</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写入session，并关闭</span></span><br><span class="line"><span class="comment"># 若不显示掉用，请求结束后，也会自动执行类似的操作</span></span><br><span class="line">session_write_close();</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">'Hello, World!'</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>浏览器请求<code>http://localhost:8080/index.php</code>返回<code>Hello, World!</code>，查看Session文件，有类似数据产生：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">% cat sess_oco6qr3akuvf8cq89tv3ksmqjv</span><br><span class="line">time|i:1626490154;</span><br></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<h4 id="Session锁是个容易被忽略的问题"><a href="#Session锁是个容易被忽略的问题" class="headerlink" title="Session锁是个容易被忽略的问题"></a>Session锁是个容易被忽略的问题</h4><p>在LNMP架构中，php-fpm会启动多个pool进程用来处理nginx代理过来的fastcgi请求。由于php-fpm是单线程模式，假设当前有4个php-fpm pool进程（此处不考虑动态增加的情况），那么同时最多可以处理4个php请求。</p>
+<p>修改下脚本，模拟真实请求：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line">$name = $_GET[<span class="string">'name'</span>];</span><br><span class="line">$loginTime = time();</span><br><span class="line"></span><br><span class="line">session_start();</span><br><span class="line">$startSessionTime = time();</span><br><span class="line">$sid = session_id();</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模拟一些操作</span></span><br><span class="line">sleep(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">session_write_close();</span><br><span class="line">$endSessionTime = time();</span><br><span class="line"></span><br><span class="line">$logoutTime = time();</span><br><span class="line"><span class="comment">// 请求消耗时间</span></span><br><span class="line">$costTime = $logoutTime - $loginTime;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&lt;&lt;&lt;HTML</span></span><br><span class="line"><span class="string">Hello, <span class="subst">$name</span>&lt;br&gt;</span></span><br><span class="line"><span class="string">[<span class="subst">$loginTime</span>] login&lt;br&gt;</span></span><br><span class="line"><span class="string">[<span class="subst">$startSessionTime</span>] start session[<span class="subst">$sid</span>], start process&lt;br&gt;</span></span><br><span class="line"><span class="string">[<span class="subst">$endSessionTime</span>] end process, close session&lt;br&gt;</span></span><br><span class="line"><span class="string">[<span class="subst">$logoutTime</span>] logout, cost time <span class="subst">$costTime</span>&lt;br&gt;</span></span><br><span class="line"><span class="string">HTML;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>脚本中间<code>sleep(10)</code>用于模拟真实请求的耗时。</p>
+<p>当前机器的php-fpm的pool进程数为4：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">% ps -ef |grep <span class="string">"[p]hp-fpm: pool"</span> | wc -l</span><br><span class="line">4</span><br></pre></td></tr></table></figure></p>
+<p>浏览器开两个窗口：</p>
+<ul>
+<li>请求A：<code>http://localhost:8080/session.php?name=A</code></li>
+<li>请求B：<code>http://localhost:8080/session.php?name=B</code></li>
+</ul>
+<p>连续快速发出两个请求。<br>请求A：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Hello, A</span><br><span class="line">[1626494223] login</span><br><span class="line">[1626494223] start session[oco6qr3akuvf8cq89tv3ksmqjv], start process</span><br><span class="line">[1626494233] end process, close session</span><br><span class="line">[1626494233] logout, cost time 10</span><br></pre></td></tr></table></figure></p>
+<p>请求A消耗了10s，没什么问题。再看请求B：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Hello, B</span><br><span class="line">[1626494224] login</span><br><span class="line">[1626494233] start session[oco6qr3akuvf8cq89tv3ksmqjv], start process</span><br><span class="line">[1626494243] end process, close session</span><br><span class="line">[1626494243] logout, cost time 19</span><br></pre></td></tr></table></figure></p>
+<p>请求B总共消耗消耗19s，而不是10s。而且可以发现在<code>login</code>和<code>start session</code>之间间隔了9s</p>
+<p>按照上面提到的<strong>“同时最多可以处理4个php请求”</strong>，当我快速连续请求两次，每次有一个pool进程为我服务，每个请求都应该消耗10s。这是为什么呢？</p>
+<p><strong>这就是session锁的影响</strong>。</p>
+<p>请求A获取session锁之后，只有释放锁(10s后)，其他进程才可以获取锁。<br>请求B在请求A后1s到达，但是在获取session的时候阻塞住了，等请求A释放session后，才可以获取session，然后继续处理。所以就造成了总共消耗19s(等待9s + 执行10s)。</p>
+<p>我们发现这仍然是个老生常谈的问题，既然有存储读取，就有并发竞争的问题。</p>
+<h4 id="如何优化session锁"><a href="#如何优化session锁" class="headerlink" title="如何优化session锁"></a>如何优化session锁</h4><p>最基本的，像其他锁竞争一样，如果能缩短占用锁的时间，那么就会减少竞争。简单修改下脚本：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line">$name = $_GET[<span class="string">'name'</span>];</span><br><span class="line">$loginTime = time();</span><br><span class="line"></span><br><span class="line">session_start();</span><br><span class="line">$startSessionTime = time();</span><br><span class="line">$sid = session_id();</span><br><span class="line"></span><br><span class="line">session_write_close();</span><br><span class="line">$endSessionTime = time();</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模拟一些操作</span></span><br><span class="line">sleep(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">$logoutTime = time();</span><br><span class="line"><span class="comment">// 请求消耗时间</span></span><br><span class="line">$costTime = $logoutTime - $loginTime;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&lt;&lt;&lt;HTML</span></span><br><span class="line"><span class="string">Hello, <span class="subst">$name</span>&lt;br&gt;</span></span><br><span class="line"><span class="string">[<span class="subst">$loginTime</span>] login&lt;br&gt;</span></span><br><span class="line"><span class="string">[<span class="subst">$startSessionTime</span>] start session[<span class="subst">$sid</span>], start process&lt;br&gt;</span></span><br><span class="line"><span class="string">[<span class="subst">$endSessionTime</span>] end process, close session&lt;br&gt;</span></span><br><span class="line"><span class="string">[<span class="subst">$logoutTime</span>] logout, cost time <span class="subst">$costTime</span>&lt;br&gt;</span></span><br><span class="line"><span class="string">HTML;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>我们将<code>sleep(10)</code>放在<code>session_write_close()</code>之后，再测试下。<br>请求A返回：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Hello, A</span><br><span class="line">[1626495196] login</span><br><span class="line">[1626495196] start session[oco6qr3akuvf8cq89tv3ksmqjv], start process</span><br><span class="line">[1626495196] end process, close session</span><br><span class="line">[1626495206] logout, cost time 10</span><br></pre></td></tr></table></figure></p>
+<p>请求B返回：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Hello, B</span><br><span class="line">[1626495197] login</span><br><span class="line">[1626495197] start session[oco6qr3akuvf8cq89tv3ksmqjv], start process</span><br><span class="line">[1626495197] end process, close session</span><br><span class="line">[1626495207] logout, cost time 10</span><br></pre></td></tr></table></figure></p>
+<p>此时请求A和请求B均只消耗了10s，提升了性能。也就是说在请求不再需要session数据时，提前的释放锁，可以提升性能。</p>
+<p>简单来说：</p>
+<ul>
+<li>避免session锁的方式就是在不需要读取session时主动关闭session，让出锁</li>
+<li>关闭session后，就不要再操作session</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"># PHP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/02/localhost/" rel="prev" title="localhost vs 0.0.0.0 vs 127.0.0.1">
+      <i class="fa fa-chevron-left"></i> localhost vs 0.0.0.0 vs 127.0.0.1
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Session锁是个容易被忽略的问题"><span class="nav-number">2.</span> <span class="nav-text">Session锁是个容易被忽略的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何优化session锁"><span class="nav-number">3.</span> <span class="nav-text">如何优化session锁</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">stonecool</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stonecool" title="GitHub → https://github.com/stonecool" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/34523tgwerrq3" title="Weibo → https://weibo.com/34523tgwerrq3" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://coolshell.cn/" title="https://coolshell.cn/" rel="noopener" target="_blank">CoolShell</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://openresty.com/" title="http://openresty.com/" rel="noopener" target="_blank">OpenResty</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://smartisan.com/" title="https://smartisan.com/" rel="noopener" target="_blank">Smartisan</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="http://nanjinglizhi.cn/" title="http://nanjinglizhi.cn/" rel="noopener" target="_blank">NanJingLizhi</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">stonecool</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
