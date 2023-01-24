@@ -155,75 +155,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://39.105.36.217:4000/2021/07/17/session/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="stonecool">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Stone's Note">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/17/session/" class="post-title-link" itemprop="url">PHP的Session锁</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-07-17 12:32:29 / 修改时间：21:38:54" itemprop="dateCreated datePublished" datetime="2021-07-17T12:32:29+08:00">2021-07-17</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>由于http请求无状态的特性，Cookie和Session是用来确定用户身份最基本的方式。大致的步骤是：浏览器第一次请求服务器，服务器会生成一个Session（Session有很多种存储方式。拿最普通的文件存储来举例，生成的Session保存为本地文件，文件名是”前缀_SessionId”），服务器将SessionId返回给浏览器，浏览器将SessionId存在Cookie中，浏览器以后请求该服务器都会带上这个SessionId，服务器根据这个SessionId找到之前的Session，就可以确定这次请求的身份。</p>
-<p>一般情况服务器会将用户身份信息存储在Session中，这样通过确定Session就可以确定用户身份。常见的还会存储一些全局的信息在Session中这样就避免重复读取DB，空间换时间。</p>
-<p>模拟下通常的请求：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment"># index.php</span></span><br><span class="line">session_start();</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进行一些读写session的操作</span></span><br><span class="line">$_SESSION[<span class="string">'time'</span>] = time();</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写入session，并关闭</span></span><br><span class="line"><span class="comment"># 若不手动调用，请求结束后，也会自动执行类似的操作，写入修改，关闭session</span></span><br><span class="line">session_write_close();</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">'Hello, World!'</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></p>
-<p>浏览器请求<code>http://localhost:8080/index.php</code>返回<code>Hello, World!</code>，查看Session文件，有类似数据产生：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">% cat sess_oco6qr3akuvf8cq89tv3ksmqjv</span><br><span class="line">time|i:1626490154;</span><br></pre></td></tr></table></figure></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/17/session/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://39.105.36.217:4000/2021/07/02/localhost/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -903,6 +834,80 @@
   
   
 
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://39.105.36.217:4000/2019/02/26/birthday-problem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="stonecool">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Stone's Note">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/02/26/birthday-problem/" class="post-title-link" itemprop="url">Birthday problem</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-02-26 11:16:14" itemprop="dateCreated datePublished" datetime="2019-02-26T11:16:14+08:00">2019-02-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-10-17 19:37:34" itemprop="dateModified" datetime="2019-10-17T19:37:34+08:00">2019-10-17</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="Birthday-problem"><a href="#Birthday-problem" class="headerlink" title="Birthday problem"></a>Birthday problem</h3><p> Birthday problem 很经典，即在一群人中，求有两个人同一天生日的概率有多大。一种错觉是，假设一年365天（什么闰年等特殊情况都不考虑），那么最少要366个人，才一定能满足有两个人同一天生日，这么看来，要满足两个人同一天生日也需要一个很大的总体人数。</p>
+<p>既然是错觉，那一定不对。</p>
+<p>计算相同生日的概率P(A)很麻烦，两个人一天，三个人一天。。。。那这么求起来就没头了。这个问题我们如果求P(A)的补集P(A’)，那么 P(A) = 1 - P(A’)。P(A’)即集合中没有任何两个人有相同生日的概率，每个人的生日都是唯一的。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/02/26/birthday-problem/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
 
   
   <nav class="pagination">
@@ -972,7 +977,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
