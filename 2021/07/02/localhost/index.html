@@ -28,7 +28,7 @@
 <meta property="og:site_name" content="Stone&#39;s Note">
 <meta property="og:description" content="注：本文只讨论进程监听时三个地址的区别。 通俗地讲 127.0.0.1代表本机地址。比如，一个进程监听了127.0.0.1:8080，只有本机的其他进程才可以访问，外网或局域网的进程无法访问。  localhost指向127.0.0.1，可以理解为是127.0.0.1的别名，定义在/etc/hosts(OS: *nixes)文件中。  0.0.0.0代表本机器的所有地址，不仅包括：127.0.0.">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2021-07-07T09:54:57.413Z">
+<meta property="og:updated_time" content="2023-01-24T11:45:36.632Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="localhost vs 0.0.0.0 vs 127.0.0.1">
 <meta name="twitter:description" content="注：本文只讨论进程监听时三个地址的区别。 通俗地讲 127.0.0.1代表本机地址。比如，一个进程监听了127.0.0.1:8080，只有本机的其他进程才可以访问，外网或局域网的进程无法访问。  localhost指向127.0.0.1，可以理解为是127.0.0.1的别名，定义在/etc/hosts(OS: *nixes)文件中。  0.0.0.0代表本机器的所有地址，不仅包括：127.0.0.">
@@ -191,7 +191,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-07 17:54:57" itemprop="dateModified" datetime="2021-07-07T17:54:57+08:00">2021-07-07</time>
+                <time title="修改时间：2023-01-24 19:45:36" itemprop="dateModified" datetime="2023-01-24T19:45:36+08:00">2023-01-24</time>
               </span>
 
           
@@ -237,7 +237,7 @@
 </ul>
 </blockquote>
 <p>原来这是mysql的特殊约定，主机名为<code>localhost</code>会连接本地的Unix sockets</p>
-<h3 id="Reference-amp-Thanks"><a href="#Reference-amp-Thanks" class="headerlink" title="Reference &amp; Thanks"></a>Reference &amp; Thanks</h3><ul>
+<h4 id="Reference-amp-Thanks"><a href="#Reference-amp-Thanks" class="headerlink" title="Reference &amp; Thanks"></a>Reference &amp; Thanks</h4><ul>
 <li><a href="https://stackoverflow.com/questions/20778771/what-is-the-difference-between-0-0-0-0-127-0-0-1-and-localhost" target="_blank" rel="noopener">What is the difference between 0.0.0.0, 127.0.0.1 and localhost?</a></li>
 <li><a href="https://man7.org/linux/man-pages/man5/hosts.5.html" target="_blank" rel="noopener">hosts(5) — Linux manual page</a></li>
 <li><a href="https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-connection-socket.html" target="_blank" rel="noopener">Connecting using Unix Sockets and Windows Named Pipes</a></li>
@@ -322,7 +322,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#通俗地讲"><span class="nav-number">1.</span> <span class="nav-text">通俗地讲</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Loopback-Address-环回地址-环回地址"><span class="nav-number">2.</span> <span class="nav-text">Loopback Address/环回地址/环回地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#etc-hosts"><span class="nav-number">3.</span> <span class="nav-text">/etc/hosts</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BTW"><span class="nav-number">4.</span> <span class="nav-text">BTW</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference-amp-Thanks"><span class="nav-number"></span> <span class="nav-text">Reference &amp; Thanks</span></a></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#通俗地讲"><span class="nav-number">1.</span> <span class="nav-text">通俗地讲</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Loopback-Address-环回地址-环回地址"><span class="nav-number">2.</span> <span class="nav-text">Loopback Address/环回地址/环回地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#etc-hosts"><span class="nav-number">3.</span> <span class="nav-text">/etc/hosts</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BTW"><span class="nav-number">4.</span> <span class="nav-text">BTW</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Reference-amp-Thanks"><span class="nav-number">5.</span> <span class="nav-text">Reference &amp; Thanks</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
