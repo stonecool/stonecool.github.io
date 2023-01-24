@@ -17,15 +17,15 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"39.105.36.217","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="前言由于http请求无状态的特性，Cookie和Session是用来确定用户身份最基本的方式。大致的步骤是：浏览器第一次请求服务器，服务器会生成一个Session（Session有很多种存储方式。拿最普通的文件存储来举例，生成的Session保存为本地文件，文件名是”前缀_SessionId”），服务器将SessionId返回给浏览器，浏览器将SessionId存在Cookie中，浏览器以后请求该">
 <meta name="keywords" content="PHP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PHP的Session锁">
-<meta property="og:url" content="http://yoursite.com/2021/07/17/session/index.html">
-<meta property="og:site_name" content="Stone&#39;s Lab">
+<meta property="og:url" content="http://39.105.36.217:4000/2021/07/17/session/index.html">
+<meta property="og:site_name" content="Stone&#39;s Note">
 <meta property="og:description" content="前言由于http请求无状态的特性，Cookie和Session是用来确定用户身份最基本的方式。大致的步骤是：浏览器第一次请求服务器，服务器会生成一个Session（Session有很多种存储方式。拿最普通的文件存储来举例，生成的Session保存为本地文件，文件名是”前缀_SessionId”），服务器将SessionId返回给浏览器，浏览器将SessionId存在Cookie中，浏览器以后请求该">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2021-07-17T13:38:54.145Z">
@@ -33,7 +33,7 @@
 <meta name="twitter:title" content="PHP的Session锁">
 <meta name="twitter:description" content="前言由于http请求无状态的特性，Cookie和Session是用来确定用户身份最基本的方式。大致的步骤是：浏览器第一次请求服务器，服务器会生成一个Session（Session有很多种存储方式。拿最普通的文件存储来举例，生成的Session保存为本地文件，文件名是”前缀_SessionId”），服务器将SessionId返回给浏览器，浏览器将SessionId存在Cookie中，浏览器以后请求该">
 
-<link rel="canonical" href="http://yoursite.com/2021/07/17/session/">
+<link rel="canonical" href="http://39.105.36.217:4000/2021/07/17/session/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>PHP的Session锁 | Stone's Lab</title>
+  <title>PHP的Session锁 | Stone's Note</title>
   
 
 
@@ -97,7 +97,7 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Stone's Lab</h1>
+      <h1 class="site-title">Stone's Note</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
@@ -161,7 +161,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/17/session/">
+    <link itemprop="mainEntityOfPage" href="http://39.105.36.217:4000/2021/07/17/session/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -170,7 +170,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Stone's Lab">
+      <meta itemprop="name" content="Stone's Note">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -340,31 +340,9 @@
       <span class="links-of-author-item">
         <a href="https://github.com/stonecool" title="GitHub → https://github.com/stonecool" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
-      <span class="links-of-author-item">
-        <a href="https://weibo.com/34523tgwerrq3" title="Weibo → https://weibo.com/34523tgwerrq3" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
-      </span>
   </div>
 
 
-  <div class="links-of-blogroll motion-element">
-    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
-      Links
-    </div>
-    <ul class="links-of-blogroll-list">
-        <li class="links-of-blogroll-item">
-          <a href="https://coolshell.cn/" title="https://coolshell.cn/" rel="noopener" target="_blank">CoolShell</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="http://openresty.com/" title="http://openresty.com/" rel="noopener" target="_blank">OpenResty</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="https://smartisan.com/" title="https://smartisan.com/" rel="noopener" target="_blank">Smartisan</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="http://nanjinglizhi.cn/" title="http://nanjinglizhi.cn/" rel="noopener" target="_blank">NanJingLizhi</a>
-        </li>
-    </ul>
-  </div>
 
       </div>
 
@@ -385,7 +363,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

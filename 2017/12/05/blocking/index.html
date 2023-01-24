@@ -17,15 +17,15 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"39.105.36.217","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="先假设：A 发出一个请求到 B，期待想获得一个数据 c 阻塞（blocking-IO）与非阻塞(non-blocking-IO）阻塞与非阻塞的区别在于，该请求是否能立即返回  阻塞 请求要等B处理完c再返回（此处并没说，c会一起返回，这是“同步与异步”讨论的问题） 非阻塞 请求立即返回，它只负责通知B，不会等待B处理完c">
 <meta name="keywords" content="未分类">
 <meta property="og:type" content="article">
 <meta property="og:title" content="阻塞与非阻塞，同步与异步的联系和区别">
-<meta property="og:url" content="http://yoursite.com/2017/12/05/blocking/index.html">
-<meta property="og:site_name" content="Stone&#39;s Lab">
+<meta property="og:url" content="http://39.105.36.217:4000/2017/12/05/blocking/index.html">
+<meta property="og:site_name" content="Stone&#39;s Note">
 <meta property="og:description" content="先假设：A 发出一个请求到 B，期待想获得一个数据 c 阻塞（blocking-IO）与非阻塞(non-blocking-IO）阻塞与非阻塞的区别在于，该请求是否能立即返回  阻塞 请求要等B处理完c再返回（此处并没说，c会一起返回，这是“同步与异步”讨论的问题） 非阻塞 请求立即返回，它只负责通知B，不会等待B处理完c">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2019-10-17T11:37:27.669Z">
@@ -33,7 +33,7 @@
 <meta name="twitter:title" content="阻塞与非阻塞，同步与异步的联系和区别">
 <meta name="twitter:description" content="先假设：A 发出一个请求到 B，期待想获得一个数据 c 阻塞（blocking-IO）与非阻塞(non-blocking-IO）阻塞与非阻塞的区别在于，该请求是否能立即返回  阻塞 请求要等B处理完c再返回（此处并没说，c会一起返回，这是“同步与异步”讨论的问题） 非阻塞 请求立即返回，它只负责通知B，不会等待B处理完c">
 
-<link rel="canonical" href="http://yoursite.com/2017/12/05/blocking/">
+<link rel="canonical" href="http://39.105.36.217:4000/2017/12/05/blocking/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>阻塞与非阻塞，同步与异步的联系和区别 | Stone's Lab</title>
+  <title>阻塞与非阻塞，同步与异步的联系和区别 | Stone's Note</title>
   
 
 
@@ -97,7 +97,7 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Stone's Lab</h1>
+      <h1 class="site-title">Stone's Note</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
@@ -161,7 +161,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/05/blocking/">
+    <link itemprop="mainEntityOfPage" href="http://39.105.36.217:4000/2017/12/05/blocking/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -170,7 +170,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Stone's Lab">
+      <meta itemprop="name" content="Stone's Note">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -338,31 +338,9 @@
       <span class="links-of-author-item">
         <a href="https://github.com/stonecool" title="GitHub → https://github.com/stonecool" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
-      <span class="links-of-author-item">
-        <a href="https://weibo.com/34523tgwerrq3" title="Weibo → https://weibo.com/34523tgwerrq3" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
-      </span>
   </div>
 
 
-  <div class="links-of-blogroll motion-element">
-    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
-      Links
-    </div>
-    <ul class="links-of-blogroll-list">
-        <li class="links-of-blogroll-item">
-          <a href="https://coolshell.cn/" title="https://coolshell.cn/" rel="noopener" target="_blank">CoolShell</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="http://openresty.com/" title="http://openresty.com/" rel="noopener" target="_blank">OpenResty</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="https://smartisan.com/" title="https://smartisan.com/" rel="noopener" target="_blank">Smartisan</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="http://nanjinglizhi.cn/" title="http://nanjinglizhi.cn/" rel="noopener" target="_blank">NanJingLizhi</a>
-        </li>
-    </ul>
-  </div>
 
       </div>
 
@@ -383,7 +361,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
